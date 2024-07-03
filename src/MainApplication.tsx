@@ -85,11 +85,10 @@ function csvivyMarkers(fileName: string, markers: Marker[]) {
             marker.markerNumber + '',
             marker.markerTimestampSecondsMilliseconds + '',
         ]);
-
-        const csvDocument = rows.map(e => e.map(q => q.toString().replace(/,/g, '\\,')).join(',')).join('\n');
-
-        downloadBlob(new Blob([csvDocument]), fileName);
     }
+
+    const csvDocument = rows.map(e => e.map(q => q.toString().replace(/,/g, '\\,')).join(',')).join('\n');
+    downloadBlob(new Blob([csvDocument]), fileName);
 }
 
 export function MainApplication( { csvExport }: { csvExport: 'no' | 'song' | 'session' }) {
@@ -273,9 +272,11 @@ export function MainApplication( { csvExport }: { csvExport: 'no' | 'song' | 'se
             <Box sx={{flexGrow: 1, minHeight: 0, overflowY: 'auto'}}>
                 <Table sx={{overflow: 'auto', minHeight: 0}} size="small">
                     <TableHead>
-                        <IndexCell>#</IndexCell>
-                        <TableCell>Title</TableCell>
-                        <TableCell align="right">Duration</TableCell>
+                        <TableRow>
+                            <IndexCell>#</IndexCell>
+                            <TableCell>Title</TableCell>
+                            <TableCell align="right">Duration</TableCell>
+                        </TableRow>
                     </TableHead>
                     <TableBody>
                         {tracks.map((t, i) => 

@@ -2,7 +2,7 @@ import { Button, StepLabel, Stepper, Step, StepContent, Box, Typography, FormCon
 import { openNewDevice, openPairedDevice } from "netmd-js";
 import { useCallback, useState } from "react";
 import { STATE } from "./state";
-import { AtracRecovery, CachedSectorBulkDownload, CachedSectorControlDownload, ExploitStateManager, MultitrackATRACRecovery, getBestSuited, isCompatible } from "netmd-exploits";
+import { AtracRecovery, CachedSectorBulkDownload, CachedSectorControlDownload, ConsoleLogger, ExploitStateManager, MultitrackATRACRecovery, getBestSuited, isCompatible } from "netmd-exploits";
 import { useSavedState } from "./frontend-utils";
 
 export function SetupWizard({ complete }: { complete: (exportMarkersAsCSV: 'no' | 'song' | 'session') => void }){
@@ -39,7 +39,7 @@ export function SetupWizard({ complete }: { complete: (exportMarkersAsCSV: 'no' 
             STATE.factory = await connection.factory();
 
             // Try to initialize the exploits
-            STATE.exploitManager = await ExploitStateManager.create(STATE.interface, STATE.factory);
+            STATE.exploitManager = await ExploitStateManager.create(STATE.interface, STATE.factory, ConsoleLogger);
 
             // Try to load the exploit for dumping data off of multitrack discs.
 
