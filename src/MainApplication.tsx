@@ -281,8 +281,21 @@ export function MainApplication( { csvExport }: { csvExport: 'no' | 'song' | 'se
                         {tracks.map((t, i) => 
                             <TableRow key={`row-${i}`} selected={selected.includes(i)} onClick={() => setSelected(old => old.includes(i) ? old.filter(e => e !== i) : [...old, i].sort())}>
                                 <IndexCell>{i + 1}</IndexCell>
-                                <TableCell>{t.title || 'Unnamed track'}{t.markers.length > 1 && `${t.markers.length} markers`}</TableCell>
-                                <TableCell align="right">
+                                <TableCell>{t.title || 'Unnamed track'}</TableCell>
+                                <TableCell align="right" sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'right' }}>
+                                    {t.markers.length > 1 &&
+                                        <Typography
+                                            sx={theme => ({
+                                                display: 'inline',
+                                                color: theme.palette.grey[600],
+                                                fontSize: 10,
+                                                verticalAlign: 'middle',
+                                                textWrap: 'nowrap',
+                                                mr: theme.spacing(1),
+                                            })}>
+                                            {t.markers.length} MARKERS
+                                        </Typography>
+                                    }
                                     <FormatBadge>{t.type}</FormatBadge>
                                     <span style={{verticalAlign: 'middle'}}>{formatTimeFromSeconds(t.duration)}</span>
                                 </TableCell>
