@@ -13,9 +13,10 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@ffmpeg/ffmpeg": "^0.6.0",
     "@mui/icons-material": "^5.15.20",
     "@mui/material": "^5.15.20",
-    "netmd-exploits": "^0.5.6",
+    "netmd-exploits": "^0.5.7",
     "netmd-js": "^4.1.10",
     "netmd-tocmanip": "^0.1.7",
     "react": "^18.3.1",

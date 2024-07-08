@@ -1,3 +1,4 @@
+import { createWorker } from '@ffmpeg/ffmpeg';
 import { Refresh } from "@mui/icons-material";
 import { Box, Button, CircularProgress, Table, TableBody, TableCell, TableHead, TableRow as _TableRow, Typography, styled, lighten, alpha, Tooltip } from "@mui/material";
 import { readUTOCSector } from "netmd-js";
@@ -78,7 +79,7 @@ function formatTimeFromSeconds(secs: number): string {
 
 function csvivyMarkers(fileName: string, markers: Marker[]) {
     const rows: string[][] = [["TRACK INDEX", "TRACK NAME", "MARKER NUMBER", "MARKER TIMESTAMP (ms)"]];
-    for(let marker of markers) {
+    for(const marker of markers) {
         rows.push([
             marker.trackIndex + '',
             marker.trackName,
@@ -89,6 +90,40 @@ function csvivyMarkers(fileName: string, markers: Marker[]) {
 
     const csvDocument = rows.map(e => e.map(q => q.toString().replace(/,/g, '\\,')).join(',')).join('\n');
     downloadBlob(new Blob([csvDocument]), fileName);
+}
+
+export function getPublicPathFor(script: string) {
+    return `${import.meta.env.BASE_URL}${script}`;
+}
+
+export async function ffmpegTranscode(data: Uint8Array, inputFormat: string, outputParameters: string) {
+    const ffmpegProcess = createWorker({
+        logger: (payload: any) => {
+            console.log(payload.action, payload.message);
+        },
+        corePath: getPublicPathFor('ffmpeg-core.js'),
+        workerPath: getPublicPathFor('worker.min.js'),
+    });
+    await ffmpegProcess.load();
+
+    await ffmpegProcess.write(`audio.${inputFormat}`, data);
+    try {
+        let forcedInputFormat;
+        if(inputFormat === 'aea') forcedInputFormat = "aea";
+
+        const params = `${forcedInputFormat ? `-f ${forcedInputFormat} ` : ''}-i audio.${inputFormat} ${outputParameters} raw`;
+        console.log(`Running ffmpeg with args: ${params}`);
+        await ffmpegProcess.run(params);
+    } catch (er) {
+        console.log(er);
+    }
+    const output = (await ffmpegProcess.read(`raw`)).data;
+    await ffmpegProcess.worker.terminate();
+    return output;
+}
+
+export async function convertToWAV(data: Uint8Array, extension: string): Promise<Uint8Array> {
+    return ffmpegTranscode(data, extension, '-f wav');
 }
 
 export function MainApplication( { csvExport }: { csvExport: 'no' | 'song' | 'session' }) {
@@ -179,7 +214,7 @@ export function MainApplication( { csvExport }: { csvExport: 'no' | 'song' | 'se
     }, [toc, reloadToC]);
 
     // Download handler
-    const handleDownload = useCallback(async () => {
+    const handleDownload = useCallback(async (convert: boolean) => {
         setDownloadDialogVisible(true);
         // Start the process
         const newProgress: typeof progressProps = {
@@ -225,7 +260,7 @@ export function MainApplication( { csvExport }: { csvExport: 'no' | 'song' | 'se
                     func = STATE.ripper!.backend!.downloadTrack.bind(STATE.ripper!.backend!);
                 }
                 let bsCounter = 0;
-                const contents = await func(trackIdx, perTrackProgressUpdater, {
+                let contents = await func(trackIdx, perTrackProgressUpdater, {
                     handleBadSector: async (address: string, count: number, seconds: number) => {
                         console.log(`Bad sector encountered at address ${address}, count ${count} (${seconds} sec.)`);
                         if(bsCounter >= 3) return 'abort';
@@ -233,7 +268,7 @@ export function MainApplication( { csvExport }: { csvExport: 'no' | 'song' | 'se
                         return 'reload';
                     }
                 });
-                const extension = {
+                let extension = {
                     SP: 'aea',
                     SPM: 'aea',
                     MT4: 'aea',
@@ -243,6 +278,13 @@ export function MainApplication( { csvExport }: { csvExport: 'no' | 'song' | 'se
 
                     '???': 'bin',
                 }[track.type];
+
+                if(convert) {
+                    newProgress.actionName = `Converting track ${trackIdx + 1}`;
+                    updateProgress();
+                    contents = await convertToWAV(contents, extension);
+                    extension = 'wav';
+                }
 
                 const fileName = `${trackIdx+1}. ${track.title ?? `Untitled ${track.type} track`}.${extension}`;
 
@@ -310,11 +352,15 @@ export function MainApplication( { csvExport }: { csvExport: 'no' | 'song' | 'se
                 {selected.length === 0 ? (
                     <Tooltip title="Select the tracks to download by clicking on them">
                         <span>
+                            <Button sx={(theme) => ({ mr: theme.spacing(2) })} disabled>Convert selected</Button>
                             <Button disabled>Download selected</Button>
                         </span>
                     </Tooltip>
                 ) : (
-                    <Button onClick={handleDownload}>Download selected</Button>
+                    <span>
+                        <Button sx={(theme) => ({ mr: theme.spacing(2) })} onClick={() => handleDownload(true)}>Convert selected</Button>
+                        <Button onClick={() => handleDownload(false)}>Download selected</Button>
+                    </span>
                 )}
             </Box>
             {loading &&

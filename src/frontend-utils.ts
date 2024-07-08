@@ -42,7 +42,7 @@ export function downloadBlob(buffer: Blob, fileName: string) {
 
 export function useSavedState<T>(defaultValue: T, name: string): [T, (newVal: T | ((oldVal: T) => T)) => void] {
     const [v, sV] = useState<T>(() => {
-        let currentStoredValue = localStorage.getItem(name);
+        const currentStoredValue = localStorage.getItem(name);
         let initialValue: T;
         if(currentStoredValue === null) {
             initialValue = defaultValue;
