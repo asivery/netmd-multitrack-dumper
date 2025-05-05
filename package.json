@@ -16,11 +16,13 @@
     "@ffmpeg/ffmpeg": "^0.6.0",
     "@mui/icons-material": "^5.15.20",
     "@mui/material": "^5.15.20",
+    "@rollup/plugin-inject": "^5.0.5",
     "netmd-exploits": "^0.5.7",
     "netmd-js": "^4.1.10",
     "netmd-tocmanip": "^0.1.7",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "vite-plugin-node-polyfills": "^0.23.0"
   },
   "devDependencies": {
     "@types/node": "^20.14.9",
