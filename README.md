@@ -15,3 +15,7 @@ In order to download the audio data from the MD Data disc onto the PC, you need 
 To switch discs, you do not need to go through the whole connection process again. Simply swap the MD Data disc to a different one, then press the refresh button above the list.
 
 This application is also compatible with normal Audio MDs, so you can download ATRAC audio from them as well.
+
+## What devices are supported?
+
+All devices from [this list](https://www.minidisc.wiki/equipment/sorting/webmd), which support Type-S (recommended), or Type-R (they work, but are very slow), are supported by this application.
