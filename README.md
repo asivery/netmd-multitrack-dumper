@@ -18,4 +18,4 @@ This application is also compatible with normal Audio MDs, so you can download A
 
 ## What devices are supported?
 
-All devices from [this list](https://www.minidisc.wiki/equipment/sorting/webmd), which support Type-S (recommended), or Type-R (they work, but are very slow), are supported by this application.
+All devices from [this list](https://www.minidisc.wiki/equipment/sorting/webmd), which support Type-S exploits (recommended), or Type-R exploits (they work, but are very slow), are supported by this application.
